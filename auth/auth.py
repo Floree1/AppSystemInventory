@@ -31,7 +31,17 @@ def login():
             flash('Invalid Access Code.', 'danger')
             return render_template('login.html')
 
-        db_uri = tenants[access_code]
+        db_entry = tenants[access_code]
+        
+        # logic to handle both absolute URI and relative filename
+        if db_entry.startswith('sqlite:///'):
+            # It's explicitly an absolute URI (or relative URI)
+            db_uri = db_entry
+        else:
+            # It's assumed to be a filename in the 'tenants' directory
+            # Construct the absolute path for the current environment
+            db_path = os.path.join(current_app.config['BASE_DIR'], 'tenants', db_entry)
+            db_uri = f'sqlite:///{db_path}'
         
         # Create a temporary engine and session to check credentials for this tenant
         try:
