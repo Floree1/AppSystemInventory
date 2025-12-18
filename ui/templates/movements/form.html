@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block header %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">{{ _('Record Movement') }}</h1>
+        <p class="text-muted">{{ _('Register incoming or outgoing stock.') }}</p>
+    </div>
+    <a href="{{ url_for('movements.list_movements') }}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> {{ _('Back to History') }}
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card">
+            <form method="POST" style="padding: 10px;">
+                <h3 class="card-title mb-4"
+                    style="font-size: 1.25rem; font-weight: 600; color: var(--text-color); margin-bottom: 24px;">{{
+                    _('Movement Details') }}</h3>
+
+                <div class="form-group mb-4">
+                    <label for="product_id">{{ _('Product') }} <span class="text-danger">*</span></label>
+                    <select name="product_id" id="product_id" class="form-control" required>
+                        <option value="">{{ _('Select Product') }}</option>
+                        {% for product in products %}
+                        <option value="{{ product.id }}">
+                            {{ product.name }} (SKU: {{ product.sku }}) - {{ _('Stock') }}: {{ product.quantity }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="grid-2-cols">
+                    <div class="form-group">
+                        <label for="movement_type">{{ _('Type') }} <span class="text-danger">*</span></label>
+                        <select name="movement_type" id="movement_type" class="form-control" required>
+                            <option value="IN">{{ _('IN (Restock/Return)') }}</option>
+                            <option value="OUT">{{ _('OUT (Sale/Loss)') }}</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="quantity">{{ _('Quantity') }} <span class="text-danger">*</span></label>
+                        <input type="number" name="quantity" id="quantity" class="form-control" min="1" required>
+                    </div>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="reason">{{ _('Reason') }}</label>
+                    <input type="text" name="reason" id="reason" class="form-control"
+                        placeholder="{{ _('e.g. Weekly Restock, Sale #123') }}">
+                </div>
+
+                <div class="form-actions mt-4 text-end">
+                    <button type="submit" class="btn btn-primary" style="padding: 12px 24px;">
+                        <i class="bi bi-check-lg me-2"></i> {{ _('Confirm Movement') }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Styles */
+    .d-flex {
+        display: flex;
+    }
+
+    .justify-content-between {
+        justify-content: space-between;
+    }
+
+    .justify-content-center {
+        justify-content: center;
+    }
+
+    .align-items-center {
+        align-items: center;
+    }
+
+    .mb-4 {
+        margin-bottom: 24px;
+    }
+
+    .mt-4 {
+        margin-top: 24px;
+    }
+
+    .text-end {
+        text-align: right;
+    }
+
+    .text-muted {
+        color: #6B7280;
+    }
+
+    .text-danger {
+        color: #EF4444;
+    }
+
+    .me-2 {
+        margin-right: 8px;
+    }
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        margin-right: -12px;
+        margin-left: -12px;
+    }
+
+    .col-lg-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+        padding-right: 12px;
+        padding-left: 12px;
+        margin: 0 auto;
+    }
+
+    .grid-2-cols {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+
+    .btn-secondary {
+        background-color: white;
+        color: #374151;
+        border: 1px solid #D1D5DB;
+    }
+
+    .btn-secondary:hover {
+        background-color: #F3F4F6;
+    }
+
+    @media (max-width: 768px) {
+        .col-lg-6 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+
+        .grid-2-cols {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block header %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">{{ _('Stock Movements') }}</h1>
+        <p class="text-muted">{{ _('Track history of IN/OUT operations.') }}</p>
+    </div>
+    <a href="{{ url_for('movements.add_movement') }}" class="btn btn-primary">
+        <i class="bi bi-arrow-left-right"></i> {{ _('New Movement') }}
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>{{ _('Date') }}</th>
+                    <th>{{ _('Type') }}</th>
+                    <th>{{ _('Product') }}</th>
+                    <th>{{ _('Quantity') }}</th>
+                    <th>{{ _('Reason') }}</th>
+                    <th>{{ _('User') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for movement in movements %}
+                <tr>
+                    <td class="text-muted">{{ movement.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        {% if movement.movement_type == 'IN' %}
+                        <span class="badge badge-success"><i class="bi bi-arrow-down-left"></i> IN</span>
+                        {% else %}
+                        <span class="badge badge-danger"><i class="bi bi-arrow-up-right"></i> OUT</span>
+                        {% endif %}
+                    </td>
+                    <td class="fw-bold text-dark">{{ movement.product.name }}</td>
+                    <td>
+                        <span style="font-weight: 600; font-size: 1.1em;">{{ movement.quantity }}</span>
+                    </td>
+                    <td><span class="text-muted">{{ movement.reason }}</span></td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-person-circle text-muted"></i>
+                            <span class="small">{{ movement.user.username }}</span>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center py-5">
+                        <div class="d-flex flex-column align-items-center">
+                            <i class="bi bi-clipboard-data display-4 text-muted mb-3" style="font-size: 3rem;"></i>
+                            <p class="text-muted mb-0">{{ _('No movements recorded yet.') }}</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .gap-2 {
+        gap: 8px;
+    }
+
+    .small {
+        font-size: 0.875rem;
+    }
+
+    /* Reusing other common styles */
+    .d-flex {
+        display: flex;
+    }
+
+    .justify-content-between {
+        justify-content: space-between;
+    }
+
+    .align-items-center {
+        align-items: center;
+    }
+
+    .flex-column {
+        flex-direction: column;
+    }
+
+    .mb-4 {
+        margin-bottom: 24px;
+    }
+
+    .mb-3 {
+        margin-bottom: 16px;
+    }
+
+    .mb-0 {
+        margin-bottom: 0;
+    }
+
+    .py-5 {
+        padding-top: 48px;
+        padding-bottom: 48px;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .fw-bold {
+        font-weight: 600;
+    }
+
+    .text-muted {
+        color: #6B7280;
+    }
+
+    .text-dark {
+        color: #111827;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tenant Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="login-page-body">
+
+    <div class="login-wrapper" style="width: 800px; max-width: 90%;">
+        <div class="login-form-wrapper" style="width: 100%; padding: 40px;">
+            <h2 style="text-align: center;">Tenant Management</h2>
+            <p style="margin-bottom: 30px; color: #6B7280; text-align: center;">Use this page to create new tenants.</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="card" style="margin-bottom: 30px;">
+                <h3 class="card-header" style="margin: -24px -24px 20px -24px;">Create New Tenant</h3>
+                <form method="POST" action="{{ url_for('tenant_admin.manage_tenants') }}">
+                    <div class="form-group">
+                        <label for="password">Master Password</label>
+                        <input type="password" name="password" id="password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Generate New Tenant</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3 class="card-header" style="margin: -24px -24px 20px -24px;">Existing Tenants</h3>
+                {% if tenants %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Access Code</th>
+                                <th>Database URI</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for code, uri in tenants.items() %}
+                            <tr>
+                                <td><code>{{ code }}</code></td>
+                                <td>{{ uri }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No tenants configured yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
