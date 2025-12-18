@@ -75,7 +75,9 @@ def main():
         db_uri = f'sqlite:///{db_path}'
         
         if create_tenant_db_and_admin(db_uri):
-            tenants_data[access_code] = db_uri
+            # Save only the filename to ensure portability across environments (Windows/Linux)
+            # The app will reconstruct the full path at runtime.
+            tenants_data[access_code] = db_filename
             print(f"  - Successfully created database: {db_filename}")
         else:
             print(f"  - FAILED to create database for code {access_code}")

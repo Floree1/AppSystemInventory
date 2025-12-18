@@ -48,11 +48,15 @@ def delete_tenant(access_code):
             print(f"Error: Tenant with access code '{access_code}' not found.")
             return
 
-        db_uri = tenants_data[access_code]
-        # The URI is like 'sqlite:///path/to/project/tenants/tenant_CODE.db'
-        # We need to handle Windows and Unix paths correctly.
-        db_path_part = db_uri.split('///')[1]
-        db_path = os.path.abspath(db_path_part)
+        db_entry = tenants_data[access_code]
+        
+        if db_entry.startswith('sqlite:///'):
+            # It's an absolute URI
+            db_path_part = db_entry.split('///')[1]
+            db_path = os.path.abspath(db_path_part)
+        else:
+            # It's a relative filename
+            db_path = os.path.join(Config.BASE_DIR, 'tenants', db_entry)
 
         # 1. Delete the database file
         if os.path.exists(db_path):
