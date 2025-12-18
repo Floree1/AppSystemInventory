@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block header %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">{{ _('Users') }}</h1>
+        <p class="text-muted">{{ _('Manage system access.') }}</p>
+    </div>
+    <a href="{{ url_for('users.add_user') }}" class="btn btn-primary">
+        <i class="bi bi-person-plus-fill"></i> {{ _('Add User') }}
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>{{ _('User') }}</th>
+                    <th>{{ _('Role') }}</th>
+                    <th>{{ _('Created At') }}</th>
+                    <th class="text-end">{{ _('Actions') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="avatar-circle">
+                                {% if user.profile_image %}
+                                <img src="{{ url_for('static', filename=user.profile_image) }}" alt="Avatar">
+                                {% else %}
+                                <i class="bi bi-person"></i>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark">{{ user.username }}</div>
+                                <div class="small text-muted">ID: {{ user.id }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        {% if user.role == 'admin' %}
+                        <span class="badge"
+                            style="background-color: #DBEAFE; color: #1E40AF; border: 1px solid #BFDBFE;">
+                            <i class="bi bi-shield-lock-fill me-1"></i> ADMIN
+                        </span>
+                        {% else %}
+                        <span class="badge"
+                            style="background-color: #F3F4F6; color: #374151; border: 1px solid #E5E7EB;">
+                            <i class="bi bi-person-fill me-1"></i> EMPLOYEE
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td><span class="text-muted">{{ user.created_at.strftime('%Y-%m-%d') }}</span></td>
+                    <td class="text-end">
+                        <div class="btn-group">
+                            <a href="{{ url_for('users.edit_user', id=user.id) }}"
+                                class="btn btn-sm btn-icon btn-outline-primary" title="{{ _('Edit') }}">
+                                <i class="bi bi-pencil-fill"></i>
+                            </a>
+                            {% if user.id != current_user.id %}
+                            <form action="{{ url_for('users.delete_user', id=user.id) }}" method="POST" class="d-inline"
+                                onsubmit="return confirm('{{ _('Are you sure?') }}');">
+                                <button type="submit" class="btn btn-sm btn-icon btn-outline-danger"
+                                    title="{{ _('Delete') }}">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center py-5">
+                        <div class="d-flex flex-column align-items-center">
+                            <i class="bi bi-people display-4 text-muted mb-3" style="font-size: 3rem;"></i>
+                            <p class="text-muted mb-0">{{ _('No users found.') }}</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    /* User Avatar */
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #E5E7EB;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .avatar-circle img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .avatar-circle i {
+        font-size: 20px;
+        color: #9CA3AF;
+    }
+
+    .gap-3 {
+        gap: 12px;
+    }
+
+    /* Reuse common styles */
+    .d-flex {
+        display: flex;
+    }
+
+    .justify-content-between {
+        justify-content: space-between;
+    }
+
+    .align-items-center {
+        align-items: center;
+    }
+
+    .flex-column {
+        flex-direction: column;
+    }
+
+    .mb-4 {
+        margin-bottom: 24px;
+    }
+
+    .mb-3 {
+        margin-bottom: 16px;
+    }
+
+    .mb-0 {
+        margin-bottom: 0;
+    }
+
+    .py-5 {
+        padding-top: 48px;
+        padding-bottom: 48px;
+    }
+
+    .text-end {
+        text-align: right;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .fw-bold {
+        font-weight: 600;
+    }
+
+    .text-muted {
+        color: #6B7280;
+    }
+
+    .text-dark {
+        color: #111827;
+    }
+
+    .small {
+        font-size: 0.875rem;
+    }
+
+    .me-1 {
+        margin-right: 4px;
+    }
+
+    .btn-sm {
+        padding: 6px 10px;
+        font-size: 0.875rem;
+    }
+
+    .btn-icon {
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-outline-primary {
+        border: 1px solid var(--primary-color);
+        color: var(--primary-color);
+        background: transparent;
+    }
+
+    .btn-outline-primary:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .btn-outline-danger {
+        border: 1px solid #EF4444;
+        color: #EF4444;
+        background: transparent;
+    }
+
+    .btn-outline-danger:hover {
+        background: #EF4444;
+        color: white;
+    }
+
+    .btn-group {
+        display: inline-flex;
+        gap: 8px;
+    }
+
+    .d-inline {
+        display: inline;
+    }
+</style>
+{% endblock %}

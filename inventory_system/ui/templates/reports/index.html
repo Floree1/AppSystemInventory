@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header">
+    <h1>Reports</h1>
+</div>
+
+<div class="card">
+    <h3>Inventory Reports</h3>
+    <p>Download current inventory status.</p>
+    <div style="margin-top: 15px;">
+        <a href="{{ url_for('reports.export_products_csv') }}" class="btn btn-primary">Export to CSV</a>
+        <a href="{{ url_for('reports.export_products_pdf') }}" class="btn btn-danger">Export to PDF</a>
+    </div>
+</div>
+{% endblock %}
