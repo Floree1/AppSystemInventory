@@ -2,7 +2,7 @@ services:
   - type: web
     name: inventory-system
     env: python
-    buildCommand: pip install -r inventory_system/requirements.txt
+    buildCommand: cd inventory_system && pip install -r requirements.txt
     startCommand: cd inventory_system && gunicorn -w 2 -b 0.0.0.0:10000 run:app
     envVars:
       - key: PYTHON_VERSION
