@@ -3,59 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tenant Management</title>
+    <title>{{ _('Tenant Management') }} - Inventory System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .manage-wrapper {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        .header-section {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white; /* Assuming dark background from login-page-body */
+        }
+        .header-section h1 {
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .header-section p {
+            opacity: 0.8;
+        }
+        .tenant-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        .tenant-card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            background-color: #f9fafb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .tenant-card-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #111827;
+        }
+        .tenant-card-body {
+            padding: 24px;
+        }
+        .access-code-badge {
+            background-color: #EEF2FF;
+            color: #4F46E5;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: 600;
+            border: 1px solid #C7D2FE;
+        }
+        .db-path {
+            font-size: 0.85rem;
+            color: #6B7280;
+            word-break: break-all;
+        }
+        .copy-btn {
+            background: none;
+            border: none;
+            color: #6B7280;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .copy-btn:hover {
+            color: #4F46E5;
+        }
+    </style>
 </head>
 <body class="login-page-body">
 
-    <div class="login-wrapper" style="width: 800px; max-width: 90%;">
-        <div class="login-form-wrapper" style="width: 100%; padding: 40px;">
-            <h2 style="text-align: center;">Tenant Management</h2>
-            <p style="margin-bottom: 30px; color: #6B7280; text-align: center;">Use this page to create new tenants.</p>
+    <div class="manage-wrapper">
+        <div class="header-section">
+            <h1><i class="bi bi-diagram-3-fill"></i> Tenant Administration</h1>
+            <p>Create and view active tenants in the system.</p>
+        </div>
 
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }}">{{ message }}</div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-
-            <div class="card" style="margin-bottom: 30px;">
-                <h3 class="card-header" style="margin: -24px -24px 20px -24px;">Create New Tenant</h3>
-                <form method="POST" action="{{ url_for('tenant_admin.manage_tenants') }}">
-                    <div class="form-group">
-                        <label for="password">Master Password</label>
-                        <input type="password" name="password" id="password" class="form-control" required>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}" style="margin-bottom: 20px;">
+                        <i class="bi bi-info-circle-fill"></i> {{ message }}
                     </div>
-                    <button type="submit" class="btn btn-primary">Generate New Tenant</button>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Create New Section -->
+        <div class="tenant-card">
+            <div class="tenant-card-header">
+                <h3><i class="bi bi-plus-circle"></i> Create New Tenant</h3>
+            </div>
+            <div class="tenant-card-body">
+                <form method="POST" action="{{ url_for('tenant_admin.manage_tenants') }}" style="display: flex; gap: 15px; align-items: flex-end;">
+                    <div class="form-group" style="flex-grow: 1; margin-bottom: 0;">
+                        <label for="password" style="display: block; margin-bottom: 5px; color: #374151; font-weight: 500;">Master Password</label>
+                        <input type="password" name="password" id="password" class="form-control" placeholder="Enter admin password to authorize" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="height: 42px;">
+                        <i class="bi bi-magic"></i> Generate
+                    </button>
                 </form>
             </div>
+        </div>
 
-            <div class="card">
-                <h3 class="card-header" style="margin: -24px -24px 20px -24px;">Existing Tenants</h3>
+        <!-- List Section -->
+        <div class="tenant-card">
+            <div class="tenant-card-header">
+                <h3><i class="bi bi-hdd-stack"></i> Existing Tenants</h3>
+                <span class="badge" style="background: #E5E7EB; color: #374151;">{{ tenants|length }} Active</span>
+            </div>
+            <div class="tenant-card-body" style="padding: 0;">
                 {% if tenants %}
-                    <table class="table">
-                        <thead>
+                    <table class="table table-hover" style="margin: 0;">
+                        <thead style="background-color: #f9fafb;">
                             <tr>
-                                <th>Access Code</th>
-                                <th>Database URI</th>
+                                <th style="padding: 15px 24px;">Access Code</th>
+                                <th style="padding: 15px 24px;">Database Connection</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for code, uri in tenants.items() %}
                             <tr>
-                                <td><code>{{ code }}</code></td>
-                                <td>{{ uri }}</td>
+                                <td style="padding: 15px 24px; width: 200px;">
+                                    <span class="access-code-badge">{{ code }}</span>
+                                    <button class="copy-btn" onclick="navigator.clipboard.writeText('{{ code }}')" title="Copy to clipboard">
+                                        <i class="bi bi-files"></i>
+                                    </button>
+                                </td>
+                                <td style="padding: 15px 24px;">
+                                    <div class="db-path">
+                                        <i class="bi bi-database"></i> {{ uri }}
+                                    </div>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 {% else %}
-                    <p>No tenants configured yet.</p>
+                    <div style="padding: 40px; text-align: center; color: #6B7280;">
+                        <i class="bi bi-inbox" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                        <p>No tenants configured yet.</p>
+                    </div>
                 {% endif %}
             </div>
+        </div>
+
+        <div style="text-align: center;">
+            <a href="{{ url_for('auth.login') }}" style="color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem;">
+                <i class="bi bi-arrow-left"></i> Back to Login
+            </a>
         </div>
     </div>
 

@@ -63,7 +63,8 @@ def manage_tenants():
         try:
             with open(Config.TENANTS_FILE, 'r+') as f:
                 tenants = json.load(f)
-                tenants[new_access_code] = db_uri
+                # Save only the filename for portability
+                tenants[new_access_code] = db_filename
                 f.seek(0)
                 json.dump(tenants, f, indent=4)
                 f.truncate()
