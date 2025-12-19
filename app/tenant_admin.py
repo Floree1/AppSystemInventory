@@ -82,3 +82,93 @@ def manage_tenants():
         current_tenants = {}
         
     return render_template('tenant_admin/manage.html', tenants=current_tenants)
+
+@tenant_admin_bp.route('/delete_tenant/<access_code>', methods=['POST'])
+def delete_tenant(access_code):
+    password = request.form.get('password')
+    if password != Config.TENANT_ADMIN_PASSWORD:
+        flash('Incorrect Master Password. Action aborted.', 'danger')
+        return redirect(url_for('tenant_admin.manage_tenants'))
+
+    try:
+        with open(Config.TENANTS_FILE, 'r') as f:
+            tenants = json.load(f)
+        
+        if access_code not in tenants:
+            flash('Tenant not found.', 'danger')
+            return redirect(url_for('tenant_admin.manage_tenants'))
+
+        db_entry = tenants[access_code]
+        
+        # Resolve path
+        if db_entry.startswith('sqlite:///'):
+            db_path_part = db_entry.split('///')[1]
+            db_path = os.path.abspath(db_path_part)
+        else:
+            db_path = os.path.join(Config.BASE_DIR, 'tenants', db_entry)
+
+        # Delete DB file
+        if os.path.exists(db_path):
+            try:
+                os.remove(db_path)
+                print(f"Deleted DB file: {db_path}")
+            except Exception as e:
+                print(f"Error deleting file {db_path}: {e}")
+                # We continue to remove from JSON even if file delete fails (maybe it's already gone)
+
+        # Remove from JSON
+        del tenants[access_code]
+        
+        with open(Config.TENANTS_FILE, 'w') as f:
+            json.dump(tenants, f, indent=4)
+
+        flash(f'Tenant {access_code} has been deleted.', 'success')
+
+    except Exception as e:
+        flash(f'An error occurred: {e}', 'danger')
+
+    return redirect(url_for('tenant_admin.manage_tenants'))
+
+@tenant_admin_bp.route('/reset_tenant/<access_code>', methods=['POST'])
+def reset_tenant(access_code):
+    password = request.form.get('password')
+    if password != Config.TENANT_ADMIN_PASSWORD:
+        flash('Incorrect Master Password. Action aborted.', 'danger')
+        return redirect(url_for('tenant_admin.manage_tenants'))
+
+    try:
+        with open(Config.TENANTS_FILE, 'r') as f:
+            tenants = json.load(f)
+        
+        if access_code not in tenants:
+            flash('Tenant not found.', 'danger')
+            return redirect(url_for('tenant_admin.manage_tenants'))
+
+        db_entry = tenants[access_code]
+        
+        # Resolve path
+        if db_entry.startswith('sqlite:///'):
+            db_uri = db_entry
+            db_path_part = db_entry.split('///')[1]
+            db_path = os.path.abspath(db_path_part)
+        else:
+            db_path = os.path.join(Config.BASE_DIR, 'tenants', db_entry)
+            db_uri = f'sqlite:///{db_path}'
+
+        # Delete existing DB file to ensure clean slate
+        if os.path.exists(db_path):
+            try:
+                os.remove(db_path)
+            except Exception as e:
+                flash(f'Error clearing old database: {e}', 'warning')
+
+        # Re-create database
+        if create_tenant_db(db_uri):
+            flash(f'Tenant {access_code} has been reset to default state.', 'success')
+        else:
+            flash(f'Failed to reset tenant {access_code}.', 'danger')
+
+    except Exception as e:
+        flash(f'An error occurred: {e}', 'danger')
+
+    return redirect(url_for('tenant_admin.manage_tenants'))
